@@ -1,6 +1,11 @@
 #include "utils.h"
 
 using namespace CoreIR;
+using namespace std;
+
+int bitsNeededToStore(const int maxVal) {
+  return floor(log2(maxVal)) + 1;  
+}
 
 void addIncReset(Context* c, Namespace* global) {
   Params incResetParams({{"width", AINT}});
@@ -90,22 +95,19 @@ void addIncrementer(Context* c, Namespace* global) {
 }
 
 void addCounter(Context* c, Namespace* global) {
-  //Now lets make our counter as a generator.
-  //We want our Generator to be able to take in the parameter width.
-  //We need to specify that the width is of type "int"
-  Params counterParams({{"width",AINT}}); //"Arg Int". I know, its bad
-  //Other param types: ABOOL,ASTRING,ATYPE
 
-  //Instead of defining a type, now we need to define a type Generator. This allows CoreIR to statically type check all connections.
+  Params counterParams({{"maxVal",AINT}});
+
   TypeGen* counterTypeGen = global->newTypeGen(
-    "CounterTypeGen", //name of typegen
+    "CounterTypeGen",
     counterParams, //Params required for typegen
     [](Context* c, Args args) { //lambda for generating the type
-      //Arg* widthArg = args.at("width"); //Checking for valid args is already done for you
-      uint width = args.at("width")->get<int>(); //widthArg->get<int>(); //get function to extract the arg value.
+
+      uint maxVal = args.at("maxVal")->get<int>();;
+      uint width = bitsNeededToStore(maxVal);
       return c->Record({
         {"en",c->BitIn()}, 
-        {"out",c->Array(width,c->Bit())}, //Note: Array is parameterized by width now
+        {"out",c->Array(width,c->Bit())},
         {"clk",c->Named("coreir.clkIn")},
       });
     } //end lambda
@@ -125,23 +127,41 @@ void addCounter(Context* c, Namespace* global) {
     //Args args: The arguments supplied to the instance of the counter.
     
     //Similar to the typegen, lets extract the width;
-    uint width = args.at("width")->get<int>();
-      
-    //Now just define the counter with with all the '16's replaced by 'width'
+    uint maxVal = args.at("maxVal")->get<int>();
+    uint width = bitsNeededToStore(maxVal);      
+
+    cout << "width = " << width << endl;
+
     Args wArg({{"width", Const(width)}});
     def->addInstance("ai","coreir.add",wArg);
     def->addInstance("ci","coreir.const",wArg,{{"value", Const(1)}});
-    //Reg has default arguments. en/clr/rst are False by default. Init is also 0 by default
     def->addInstance("ri","coreir.reg",{{"width", Const(width)},{"en", Const(true)}});
-    
+    def->addInstance("maxVal", "coreir.const", wArg, {{"value", Const(maxVal)}});
+
+    def->addInstance("zro", "coreir.const", wArg, {{"value", Const(0)}});
+    def->addInstance("incMux", "coreir.mux", wArg);
+    def->addInstance("eqMax", "coreir.eq", wArg);
+
     //Connections
-    def->connect("self.clk","ri.clk");
-    def->connect("self.en","ri.en");
-    def->connect("ci.out","ai.in0");
-    def->connect("ai.out","ri.in");
-    def->connect("ri.out","ai.in1");
-    def->connect("ri.out","self.out");
-  }); //end lambda, end function
+    def->connect("self.clk", "ri.clk");
+    def->connect("self.en", "ri.en");
+
+    def->connect("ci.out", "ai.in0");
+    def->connect("ri.out", "ai.in1");
+    
+    // Connect up mux to reg
+    def->connect("ai.out", "incMux.in0");
+    def->connect("zro.out", "incMux.in1");
+    def->connect("eqMax.out", "incMux.sel");
+    def->connect("incMux.out", "ri.in");
+
+    // Create eq test
+    def->connect("ri.out", "eqMax.in0");
+    def->connect("maxVal.out", "eqMax.in1");
+
+    // Register output
+    def->connect("ri.out", "self.out");
+  });
   
 }
 

@@ -7,3 +7,5 @@ void addIncReset(CoreIR::Context* c, CoreIR::Namespace* global);
 void addIncrementer(CoreIR::Context* c, CoreIR::Namespace* global);
 
 void addCounter(CoreIR::Context* c, CoreIR::Namespace* global);
+
+int bitsNeededToStore(const int maxVal);

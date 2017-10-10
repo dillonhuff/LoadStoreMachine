@@ -15,7 +15,9 @@ TEST_CASE("Off power of 2 counter") {
 
   addCounter(c, global);
 
-  uint pcWidth = 17;
+  uint maxVal = 17;
+  uint pcWidth = bitsNeededToStore(maxVal);
+
   Type* counterTestType =
     c->Record({
 	{"en", c->BitIn()},
@@ -25,7 +27,7 @@ TEST_CASE("Off power of 2 counter") {
   Module* counterTest = global->newModuleDecl("counterMod", counterTestType);
   ModuleDef* def = counterTest->newModuleDef();
 
-  def->addInstance("counter", "global.counter", {{"width", Const(pcWidth)}});
+  def->addInstance("counter", "global.counter", {{"maxVal", Const(maxVal)}});
 
   def->connect("self.en", "counter.en");
   def->connect("self.clk", "counter.clk");
@@ -40,26 +42,35 @@ TEST_CASE("Off power of 2 counter") {
   inlineInstance(def->getInstances()["counter"]);
 
   SimulatorState state(counterTest);
-  state.setValue("counter$ri.out", BitVec(pcWidth, 400));
+  state.setValue("counter$ri.out", BitVec(pcWidth, 10));
   state.setValue("self.en", BitVec(1, 1));
   state.setClock("self.clk", 0, 1);
 
-  state.execute();
+  SECTION("After first step output is the initial register value") {
 
-  REQUIRE(state.getBitVec("self.counterOut") == BitVec(pcWidth, 400));
+    state.execute();
 
-  state.setValue("counter$ri.out", BitVec(pcWidth, 400));
-  state.setValue("self.en", BitVec(1, 0));
-  state.setClock("self.clk", 0, 1);
-  
-  state.execute();
-  state.execute();
-  state.execute();
-  state.execute();
+    REQUIRE(state.getBitVec("self.counterOut") == BitVec(pcWidth, 10));
+  }
 
-  cout << "Output = " << state.getBitVec("self.counterOut") << endl;
+  SECTION("7 full clock cycles after eleven there is a reset") {
+    state.setValue("counter$ri.out", BitVec(pcWidth, 11));
+    state.setValue("self.en", BitVec(1, 1));
+    state.setClock("self.clk", 0, 1);
+    state.setMainClock("self.clk");
 
-  REQUIRE(state.getBitVec("self.counterOut") == BitVec(pcWidth, 400));
+    //cout << "Start  = " << state.getBitVec("self.counterOut") << endl;
+
+    for (int i = 0; i < 14; i++) {
+      state.execute();
+      state.stepMainClock();
+      cout << "Output = " << state.getBitVec("self.counterOut") << endl;
+      cout << "ri     = " << state.getBitVec("counter$ri.out") << endl;    
+    }
+
+
+    REQUIRE(state.getBitVec("self.counterOut") == BitVec(pcWidth, 0));
+  }
   
 }
 
