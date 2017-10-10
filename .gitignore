@@ -1,3 +1,11 @@
 *~
 
+CMakeCache.txt
+
+CMakeFiles/
+Makefile
+all-tests
+incReset.json
+
+
 cmake_install.cmake
