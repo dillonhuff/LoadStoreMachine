@@ -27,7 +27,7 @@ TEST_CASE("Off power of 2 counter") {
   Module* counterTest = global->newModuleDecl("counterMod", counterTestType);
   ModuleDef* def = counterTest->newModuleDef();
 
-  def->addInstance("counter", "global.counter", {{"maxVal", Const(maxVal)}});
+  def->addInstance("counter", "global.counter", {{"maxVal", Const::make(c, maxVal)}});
 
   def->connect("self.en", "counter.en");
   def->connect("self.clk", "counter.clk");
@@ -90,7 +90,7 @@ TEST_CASE("Incrementer") {
   ModuleDef* def = incTest->newModuleDef();
 
 
-  def->addInstance("incrementer", "global.inc", {{"width", Const(pcWidth)}});
+  def->addInstance("incrementer", "global.inc", {{"width", Const::make(c, pcWidth)}});
 
   def->connect("self.incIn", "incrementer.in");
   def->connect("incrementer.out", "self.incOut");
@@ -139,7 +139,7 @@ TEST_CASE("Increment or reset") {
   Module* irM = global->newModuleDecl("irM", irType);
   ModuleDef* def = irM->newModuleDef();
 
-  def->addInstance("ir", "global.incReset", {{"width", Const(width)}});
+  def->addInstance("ir", "global.incReset", {{"width", Const::make(c, width)}});
 
   def->connect("self.in", "ir.in");
   def->connect("self.reset", "ir.selectBit");

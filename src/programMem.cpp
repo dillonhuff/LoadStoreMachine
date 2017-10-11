@@ -5,12 +5,12 @@
 using namespace CoreIR;
 
 void addProgramMem(CoreIR::Context* c, CoreIR::Namespace* global) {
-  Params programMemParams({{"pcWidth", AINT}});
+  Params programMemParams({{"pcWidth", c->Int()}});
 
   TypeGen* memParamsTypeGen =
     global->newTypeGen("programMemTypeGen",
 		       programMemParams,
-		       [](Context* c, Args args) {
+		       [](Context* c, Values args) {
 			 //uint pcWidth = args.at("pcWidth")->get<int>();
 			 return c->Record();
 		       }
@@ -21,7 +21,8 @@ void addProgramMem(CoreIR::Context* c, CoreIR::Namespace* global) {
 			     memParamsTypeGen,
 			     programMemParams);
 
-  programMem->setGeneratorDefFromFun([](ModuleDef* def, Context* c, Type* t, Args args) {
+  programMem->setGeneratorDefFromFun([](Context* c, Values args, ModuleDef* def) {
+      //programMem->setGeneratorDefFromFun([](ModuleDef* def, Context* c, Type* t, Args args) {
       //uint pcWidth = args.at("pcWidth")->get<int>();
       
     });

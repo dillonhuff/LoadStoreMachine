@@ -8,12 +8,12 @@ int bitsNeededToStore(const int maxVal) {
 }
 
 void addIncReset(Context* c, Namespace* global) {
-  Params incResetParams({{"width", AINT}});
+  Params incResetParams({{"width", c->Int()}});
 
   TypeGen* incResetTypeGen =
     global->newTypeGen("IncResetTypeGen",
 		       incResetParams,
-		       [](Context* c, Args args) {
+		       [](Context* c, Values args) {
 			 uint width = args.at("width")->get<int>();
 
 			 return c->Record({
@@ -28,13 +28,13 @@ void addIncReset(Context* c, Namespace* global) {
 					    incResetTypeGen,
 					    incResetParams);
 
-  inc->setGeneratorDefFromFun([](ModuleDef* def,Context* c, Type* t, Args args) {
+  inc->setGeneratorDefFromFun([](Context* c, Values args, ModuleDef* def) {
     uint width = args.at("width")->get<int>();
       
-    def->addInstance("pcMultiplexer", "coreir.mux", {{"width", Const(width)}});
-    def->addInstance("incrementer", "global.inc", {{"width", Const(width)}});
-    Args wArg({{"width", Const(width)}});
-    def->addInstance("resetConstant", "coreir.const", wArg, {{"value", Const(0)}});
+    def->addInstance("pcMultiplexer", "coreir.mux", {{"width", Const::make(c, width)}});
+    def->addInstance("incrementer", "global.inc", {{"width", Const::make(c, width)}});
+    Values wArg({{"width", Const::make(c, width)}});
+    def->addInstance("resetConstant", "coreir.const", wArg, {{"value", Const::make(c, 0)}});
 
     // Connections
     def->connect("self.selectBit", "pcMultiplexer.sel");
@@ -51,13 +51,13 @@ void addIncReset(Context* c, Namespace* global) {
 
 void addIncrementer(Context* c, Namespace* global) {
 
-  Params incParams({{"width", AINT}});
+  Params incParams({{"width", c->Int()}});
   //Other param types: ABOOL,ASTRING,ATYPE
 
   TypeGen* incTypeGen = global->newTypeGen(
     "IncTypeGen", //name of typegen
     incParams, //Params required for typegen
-    [](Context* c, Args args) { //lambda for generating the type
+    [](Context* c, Values args) { //lambda for generating the type
 
       uint width = args.at("width")->get<int>();
 
@@ -77,14 +77,15 @@ void addIncrementer(Context* c, Namespace* global) {
   
   //Now lets define our generator function. I am going to use a lambda again, but you could pass in
   //  a normal function with the same type signature.
-  inc->setGeneratorDefFromFun([](ModuleDef* def,Context* c, Type* t, Args args) {
+  inc->setGeneratorDefFromFun([](Context* c, Values args, ModuleDef* def) {
+      //inc->setGeneratorDefFromFun([](ModuleDef* def,Context* c, Type* t, Values args) {
     //Similar to the typegen, lets extract the width;
     uint width = args.at("width")->get<int>();
       
     //Now just define the inc with with all the '16's replaced by 'width'
-    Args wArg({{"width", Const(width)}});
+    Values wArg({{"width", Const::make(c, width)}});
     def->addInstance("ai","coreir.add",wArg);
-    def->addInstance("ci","coreir.const",wArg,{{"value", Const(1)}});
+    def->addInstance("ci","coreir.const",wArg,{{"value", Const::make(c, 1)}});
     
     //Connections
     def->connect("ci.out","ai.in0");
@@ -96,12 +97,12 @@ void addIncrementer(Context* c, Namespace* global) {
 
 void addCounter(Context* c, Namespace* global) {
 
-  Params counterParams({{"maxVal",AINT}});
+  Params counterParams({{"maxVal",c->Int()}});
 
   TypeGen* counterTypeGen = global->newTypeGen(
     "CounterTypeGen",
     counterParams, //Params required for typegen
-    [](Context* c, Args args) { //lambda for generating the type
+    [](Context* c, Values args) { //lambda for generating the type
 
       uint maxVal = args.at("maxVal")->get<int>();;
       uint width = bitsNeededToStore(maxVal);
@@ -121,10 +122,11 @@ void addCounter(Context* c, Namespace* global) {
   
   //Now lets define our generator function. I am going to use a lambda again, but you could pass in
   //  a normal function with the same type signature.
-  counter->setGeneratorDefFromFun([](ModuleDef* def,Context* c, Type* t, Args args) {
+  counter->setGeneratorDefFromFun([](Context* c, Values args, ModuleDef* def) {
+  //counter->setGeneratorDefFromFun([](ModuleDef* def,Context* c, Type* t, Values args) {
     //ModuleDef* def : The circuit you are defining.
     //Type* t: The generated Type of the counter (Using your counterTypeGen function!)
-    //Args args: The arguments supplied to the instance of the counter.
+    //Values args: The arguments supplied to the instance of the counter.
     
     //Similar to the typegen, lets extract the width;
     uint maxVal = args.at("maxVal")->get<int>();
@@ -132,13 +134,13 @@ void addCounter(Context* c, Namespace* global) {
 
     cout << "width = " << width << endl;
 
-    Args wArg({{"width", Const(width)}});
+    Values wArg({{"width", Const::make(c, width)}});
     def->addInstance("ai","coreir.add",wArg);
-    def->addInstance("ci","coreir.const",wArg,{{"value", Const(1)}});
-    def->addInstance("ri","coreir.reg",{{"width", Const(width)},{"en", Const(true)}});
-    def->addInstance("maxVal", "coreir.const", wArg, {{"value", Const(maxVal)}});
+    def->addInstance("ci","coreir.const",wArg,{{"value", Const::make(c, 1)}});
+    def->addInstance("ri","coreir.reg",{{"width", Const::make(c, width)},{"en", Const::make(c, true)}});
+    def->addInstance("maxVal", "coreir.const", wArg, {{"value", Const::make(c, maxVal)}});
 
-    def->addInstance("zro", "coreir.const", wArg, {{"value", Const(0)}});
+    def->addInstance("zro", "coreir.const", wArg, {{"value", Const::make(c, 0)}});
     def->addInstance("incMux", "coreir.mux", wArg);
     def->addInstance("eqMax", "coreir.eq", wArg);
 
