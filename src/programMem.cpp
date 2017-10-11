@@ -17,6 +17,7 @@ void addProgramMem(CoreIR::Context* c, CoreIR::Namespace* global) {
 			 return c->Record({
 			     {"clk", c->Named("coreir.clkIn")},
 			       {"stageNumber", c->Array(stageBits, c->BitIn())},
+				 {"nextPC", c->Array(pcWidth, c->BitIn())},
 
 			       // Outputs
 				 {"opName", c->Array(pcWidth, c->Bit())},
@@ -84,12 +85,17 @@ void addProgramMem(CoreIR::Context* c, CoreIR::Namespace* global) {
       def->connect("progMem.rdata", "arg1.in");
 
       // Connect PC to increments
-      def->connect("pc.out", "inc1.in");
+      def->connect("PC.out", "inc1.in");
       def->connect("inc1.out", "inc2.in");
 
-      def->connect("pc.out", "memMux.in.0");
+      def->connect("PC.out", "memMux.in.0");
       def->connect("inc1.out", "memMux.in.1");
       def->connect("inc2.out", "memMux.in.2");
+
+      // Connect stage number to memMux
+
+      // Connect PC to updated value
+      def->connect("self.nextPC", "PC.out");
 
       // Connect results to outputs
       def->connect("opName.out", "self.opName");

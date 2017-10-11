@@ -95,6 +95,22 @@ void addIncrementer(Context* c, Namespace* global) {
 
 }
 
+void addSink(Context* c, Namespace* global) {
+  Params sinkParams({{"width", c->Int()}});
+
+  TypeGen* sinkTypeGen =
+    global->newTypeGen("SinkTypeGen",
+		       sinkParams,
+		       [](Context* c, Values args) {
+			 uint width = args.at("width")->get<int>();
+			 return c->Record({{"in", c->Array(width, c->BitIn())}});
+		       });
+
+  global->newGeneratorDecl("sink", sinkTypeGen, sinkParams);
+
+  
+}
+
 void addCounter(Context* c, Namespace* global) {
 
   Params counterParams({{"maxVal",c->Int()}});
@@ -131,8 +147,6 @@ void addCounter(Context* c, Namespace* global) {
     //Similar to the typegen, lets extract the width;
     uint maxVal = args.at("maxVal")->get<int>();
     uint width = bitsNeededToStore(maxVal);      
-
-    cout << "width = " << width << endl;
 
     Values wArg({{"width", Const::make(c, width)}});
     def->addInstance("ai","coreir.add",wArg);
