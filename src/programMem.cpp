@@ -12,7 +12,12 @@ void addProgramMem(CoreIR::Context* c, CoreIR::Namespace* global) {
 		       programMemParams,
 		       [](Context* c, Values args) {
 			 //uint pcWidth = args.at("pcWidth")->get<int>();
-			 return c->Record();
+			 uint numStages = args.at("numStages")->get<int>();
+			 uint stageBits = bitsNeededToStore(numStages);
+			 return c->Record({
+			     {"clk", c->Named("coreir.clkIn")},
+			       {"stageNumber", c->Array(stageBits, c->BitIn())}
+			   });
 		       }
 		       );
 
@@ -63,6 +68,9 @@ void addProgramMem(CoreIR::Context* c, CoreIR::Namespace* global) {
       // Connect stage counter where needed
 
       // Connect memory rdata to registers
+      def->connect("progMem.rdata", "opCode.in");
+      def->connect("progMem.rdata", "arg0.in");
+      def->connect("progMem.rdata", "arg1.in");
 
       // Set register enables
 
@@ -76,4 +84,7 @@ void addProgramMem(CoreIR::Context* c, CoreIR::Namespace* global) {
       
 
     });
+
+  // Q: Can you pipeline a design just by merging some stage numbers in
+  // modules that have stage number ports?
 }
