@@ -22,8 +22,22 @@ void addProgramMem(CoreIR::Context* c, CoreIR::Namespace* global) {
 			     programMemParams);
 
   programMem->setGeneratorDefFromFun([](Context* c, Values args, ModuleDef* def) {
-      //programMem->setGeneratorDefFromFun([](ModuleDef* def, Context* c, Type* t, Args args) {
-      //uint pcWidth = args.at("pcWidth")->get<int>();
+      uint pcWidth = args.at("pcWidth")->get<int>();
+
+      def->addInstance("opCode",
+		       "coreir.reg",
+		       {{"width", Const::make(c, pcWidth)},
+			   {"en", Const::make(c, true)}});
+
+      def->addInstance("opArg0",
+		       "coreir.reg",
+		       {{"width", Const::make(c, pcWidth)},
+			   {"en", Const::make(c, true)}});
+
+      def->addInstance("opArg1",
+		       "coreir.reg",
+		       {{"width", Const::make(c, pcWidth)},
+			   {"en", Const::make(c, true)}});
       
     });
 }
