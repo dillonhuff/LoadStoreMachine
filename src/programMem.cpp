@@ -31,6 +31,12 @@ void addProgramMem(CoreIR::Context* c, CoreIR::Namespace* global) {
 
       def->addInstance("inc1", "global.inc", {{"width", Const::make(c, pcWidth)}});
       def->addInstance("inc2", "global.inc", {{"width", Const::make(c, pcWidth)}});
+
+      def->addInstance("memMux",
+		       "commonlib.muxN",
+		       {{"N", Const::make(c, 3)},
+			   {"width", Const::make(c, pcWidth)}}
+		       );
       
       def->addInstance("opCode",
 		       "coreir.reg",
@@ -52,7 +58,22 @@ void addProgramMem(CoreIR::Context* c, CoreIR::Namespace* global) {
 		       {{"width", Const::make(c, pcWidth)},
 			   {"depth", Const::make(c, pow(2, pcWidth))}});
 
+      // Connect clock to sequential elements
 
+      // Connect stage counter where needed
+
+      // Connect memory rdata to registers
+
+      // Set register enables
+
+      // Connect PC to increments
+      def->connect("pc.out", "inc1.in");
+      def->connect("inc1.out", "inc2.in");
+
+      def->connect("pc.out", "memMux.in.0");
+      def->connect("inc1.out", "memMux.in.1");
+      def->connect("inc2.out", "memMux.in.2");
       
+
     });
 }
