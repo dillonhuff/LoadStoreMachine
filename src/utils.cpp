@@ -34,7 +34,7 @@ void addIncReset(Context* c, Namespace* global) {
     def->addInstance("pcMultiplexer", "coreir.mux", {{"width", Const::make(c, width)}});
     def->addInstance("incrementer", "global.inc", {{"width", Const::make(c, width)}});
     Values wArg({{"width", Const::make(c, width)}});
-    def->addInstance("resetConstant", "coreir.const", wArg, {{"value", Const::make(c, 0)}});
+    def->addInstance("resetConstant", "coreir.const", wArg, {{"value", Const::make(c, BitVector(width, 0))}});
 
     // Connections
     def->connect("self.selectBit", "pcMultiplexer.sel");
@@ -85,7 +85,7 @@ void addIncrementer(Context* c, Namespace* global) {
     //Now just define the inc with with all the '16's replaced by 'width'
     Values wArg({{"width", Const::make(c, width)}});
     def->addInstance("ai","coreir.add",wArg);
-    def->addInstance("ci","coreir.const",wArg,{{"value", Const::make(c, 1)}});
+    def->addInstance("ci","coreir.const",wArg,{{"value", Const::make(c, BitVector(width, 1))}});
     
     //Connections
     def->connect("ci.out","ai.in0");
@@ -136,11 +136,11 @@ void addCounter(Context* c, Namespace* global) {
 
     Values wArg({{"width", Const::make(c, width)}});
     def->addInstance("ai","coreir.add",wArg);
-    def->addInstance("ci","coreir.const",wArg,{{"value", Const::make(c, 1)}});
+    def->addInstance("ci","coreir.const",wArg,{{"value", Const::make(c, BitVector(width, 1))}});
     def->addInstance("ri","coreir.reg",{{"width", Const::make(c, width)},{"en", Const::make(c, true)}});
-    def->addInstance("maxVal", "coreir.const", wArg, {{"value", Const::make(c, maxVal)}});
+    def->addInstance("maxVal", "coreir.const", wArg, {{"value", Const::make(c, BitVector(width, maxVal))}});
 
-    def->addInstance("zro", "coreir.const", wArg, {{"value", Const::make(c, 0)}});
+    def->addInstance("zro", "coreir.const", wArg, {{"value", Const::make(c, BitVector(width, 0))}});
     def->addInstance("incMux", "coreir.mux", wArg);
     def->addInstance("eqMax", "coreir.eq", wArg);
 
