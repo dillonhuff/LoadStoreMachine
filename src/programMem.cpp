@@ -38,6 +38,11 @@ void addProgramMem(CoreIR::Context* c, CoreIR::Namespace* global) {
 		       "coreir.reg",
 		       {{"width", Const::make(c, pcWidth)},
 			   {"en", Const::make(c, true)}});
+
+      def->addInstance("progMem",
+		       "coreir.mem",
+		       {{"width", Const::make(c, pcWidth)},
+			   {"depth", Const::make(c, pow(2, pcWidth))}});
       
     });
 }
