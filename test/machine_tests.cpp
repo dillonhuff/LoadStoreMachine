@@ -1,6 +1,7 @@
 #define CATCH_CONFIG_MAIN
 
 #include "coreir/libs/commonlib.h"
+#include "coreir/simulator/interpreter.h"
 
 #include "catch.hpp"
 
@@ -33,5 +34,11 @@ TEST_CASE("Harris") {
     cout << "Could not Load from json!!" << endl;
     c->die();
   }
+
+  Module* m = global->getModule("DesignTop");
+
+  assert(m != nullptr);
+
+  SimulatorState state(m);
   
 }
