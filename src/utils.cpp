@@ -108,7 +108,6 @@ void addSink(Context* c, Namespace* global) {
 
   global->newGeneratorDecl("sink", sinkTypeGen, sinkParams);
 
-  
 }
 
 void addCounter(Context* c, Namespace* global) {

@@ -69,6 +69,14 @@ void addProgramMem(CoreIR::Context* c, CoreIR::Namespace* global) {
 		       {{"width", Const::make(c, pcWidth)},
 			   {"depth", Const::make(c, pow(2, pcWidth))}});
 
+      def->addInstance("waddrSink",
+		       "global.sink",
+		       {{"width", Const::make(c, pcWidth)}});
+
+      def->addInstance("wdataSink",
+		       "global.sink",
+		       {{"width", Const::make(c, pcWidth)}});
+      
       // Connect clock to sequential elements
       def->connect("self.clk", "progMem.clk");
       def->connect("self.clk", "PC.clk");
@@ -78,6 +86,9 @@ void addProgramMem(CoreIR::Context* c, CoreIR::Namespace* global) {
 
       // Connect stage counter to enables where needed
       // Set register enables, this is the same as stage connection?
+
+      // Connect memory write ports to du
+      //def->connect
 
       // Connect memory rdata to registers
       def->connect("progMem.rdata", "opCode.in");

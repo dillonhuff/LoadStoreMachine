@@ -1,5 +1,7 @@
 #define CATCH_CONFIG_MAIN
 
+#include "coreir/libs/commonlib.h"
+
 #include "catch.hpp"
 
 #include "programMem.h"
@@ -18,5 +20,18 @@ TEST_CASE("Program control test") {
 }
 
 TEST_CASE("Whole architecture") {
+  
+}
+
+TEST_CASE("Harris") {
+  Context* c = newContext();
+  Namespace* global = c->getGlobal();
+  Namespace* common = CoreIRLoadLibrary_commonlib(c);
+
+  cout << "loading" << endl;
+  if (!loadFromFile(c,"./test/proc_conv_3_1.json")) {
+    cout << "Could not Load from json!!" << endl;
+    c->die();
+  }
   
 }
