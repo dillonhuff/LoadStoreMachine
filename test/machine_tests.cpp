@@ -42,8 +42,8 @@ TEST_CASE("Harris") {
   SimulatorState state(m);
   state.setValue("self.in_0", BitVector(16, "0000000000000000"));
 
-  state.execute();
+  // state.execute();
 
-  cout << "out = " << state.getBitVec("self.out") << endl;
+  // cout << "out = " << state.getBitVec("self.out") << endl;
   
 }

@@ -35,11 +35,7 @@ TEST_CASE("Off power of 2 counter") {
 
   counterTest->setDef(def);
 
-  RunGenerators rg;
-  rg.runOnNamespace(global);
-
-  // Inline increment
-  inlineInstance(def->getInstances()["counter"]);
+  c->runPasses({"rungenerators","flattentypes","flatten"});
 
   SimulatorState state(counterTest);
   state.setValue("counter$ri.out", BitVec(pcWidth, 10));
@@ -97,11 +93,12 @@ TEST_CASE("Incrementer") {
 
   incTest->setDef(def);
 
-  RunGenerators rg;
-  rg.runOnNamespace(global);
+  c->runPasses({"rungenerators","flattentypes","flatten"});  
+  // RunGenerators rg;
+  // rg.runOnNamespace(global);
 
-  // Inline increment
-  inlineInstance(def->getInstances()["incrementer"]);
+  // // Inline increment
+  // inlineInstance(def->getInstances()["incrementer"]);
 
   SimulatorState state(incTest);
   state.setValue("self.incIn", BitVec(pcWidth, 0));
@@ -147,12 +144,13 @@ TEST_CASE("Increment or reset") {
 
   irM->setDef(def);
 
-  RunGenerators rg;
-  rg.runOnNamespace(global);
+  c->runPasses({"rungenerators","flattentypes","flatten"});
+  // RunGenerators rg;
+  // rg.runOnNamespace(global);
 
-  // Inline increment
-  inlineInstance(def->getInstances()["ir"]);
-  inlineInstance(def->getInstances()["ir$incrementer"]);
+  // // Inline increment
+  // inlineInstance(def->getInstances()["ir"]);
+  // inlineInstance(def->getInstances()["ir$incrementer"]);
 
   cout << "Checking saving and loading pregen" << endl;
   if (!saveToFile(global, "incReset.json", irM)) {
