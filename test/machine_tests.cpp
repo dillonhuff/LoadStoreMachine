@@ -30,7 +30,7 @@ TEST_CASE("Harris") {
   Namespace* common = CoreIRLoadLibrary_commonlib(c);
 
   cout << "loading" << endl;
-  if (!loadFromFile(c,"./test/flat_proc_conv_3_1.json")) {
+  if (!loadFromFile(c,"./test/sim_ready_conv_3_1.json")) {
     cout << "Could not Load from json!!" << endl;
     c->die();
   }
@@ -41,6 +41,11 @@ TEST_CASE("Harris") {
 
   SimulatorState state(m);
   state.setValue("self.in_0", BitVector(16, "0000000000000000"));
+  state.setMainClock("self.clk");
+
+  state.setClock("self.clk", 0, 1);
+
+  state.execute();
 
   // state.execute();
 

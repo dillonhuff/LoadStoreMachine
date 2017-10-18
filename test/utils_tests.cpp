@@ -94,11 +94,6 @@ TEST_CASE("Incrementer") {
   incTest->setDef(def);
 
   c->runPasses({"rungenerators","flattentypes","flatten"});  
-  // RunGenerators rg;
-  // rg.runOnNamespace(global);
-
-  // // Inline increment
-  // inlineInstance(def->getInstances()["incrementer"]);
 
   SimulatorState state(incTest);
   state.setValue("self.incIn", BitVec(pcWidth, 0));
@@ -145,13 +140,7 @@ TEST_CASE("Increment or reset") {
   irM->setDef(def);
 
   c->runPasses({"rungenerators","flattentypes","flatten"});
-  // RunGenerators rg;
-  // rg.runOnNamespace(global);
-
-  // // Inline increment
-  // inlineInstance(def->getInstances()["ir"]);
-  // inlineInstance(def->getInstances()["ir$incrementer"]);
-
+  
   cout << "Checking saving and loading pregen" << endl;
   if (!saveToFile(global, "incReset.json", irM)) {
     cout << "Could not save to json!!" << endl;
