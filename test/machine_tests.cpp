@@ -30,7 +30,8 @@ TEST_CASE("Harris") {
   Namespace* common = CoreIRLoadLibrary_commonlib(c);
 
   cout << "loading" << endl;
-  if (!loadFromFile(c,"./test/sim_ready_conv_3_1.json")) {
+  //if (!loadFromFile(c,"./test/sim_ready_conv_3_1.json")) {
+  if (!loadFromFile(c,"./test/sim_ready_harris.json")) {
     cout << "Could not Load from json!!" << endl;
     c->die();
   }
@@ -47,13 +48,13 @@ TEST_CASE("Harris") {
 
   BitVector one(16, "1");
   BitVector nextIn(16, "0");
-  for (int i = 0; i < 20; i++) {
+  for (int i = 0; i < 200; i++) {
     state.setValue("self.in_0", nextIn);
     nextIn = add_general_width_bv(nextIn, one);
     state.execute();    
-    cout << "out = " << state.getBitVec("self.out") << endl;
+
   }
 
-
+  cout << "out = " << state.getBitVec("self.out") << endl;
   
 }
