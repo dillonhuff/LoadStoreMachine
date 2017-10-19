@@ -45,10 +45,15 @@ TEST_CASE("Harris") {
 
   state.setClock("self.clk", 0, 1);
 
-  state.execute();
+  BitVector one(16, "1");
+  BitVector nextIn(16, "0");
+  for (int i = 0; i < 20; i++) {
+    state.setValue("self.in_0", nextIn);
+    nextIn = add_general_width_bv(nextIn, one);
+    state.execute();    
+    cout << "out = " << state.getBitVec("self.out") << endl;
+  }
 
-  // state.execute();
 
-  // cout << "out = " << state.getBitVec("self.out") << endl;
   
 }
